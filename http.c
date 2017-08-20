@@ -3,6 +3,25 @@
 void echo_error(int fd, int error_num)
 {
 }
+int set_noblock(int fd)
+{
+	int ret,s;
+	ret = fcntl(fd,F_GETFL, 0);
+	if (ret == -1)
+	{
+		perror("fcntl error");
+		return -6;
+	}
+	ret |= O_NONBLOCK;
+	s = fcntl(fd, F_SETFL, ret);
+	if (s == -1)
+	{
+		perror("fcntl error");
+		return -7;
+	}
+	return 0;
+}
+
 int startup(const char *ip, int port)
 {
 	int sock = socket(AF_INET, SOCK_STREAM,0);
@@ -327,11 +346,13 @@ void *handler_request(void *arg)
 		if (cgi)
 		{
 			exe_cgi(fd, method, path, query_string);
+			close(fd);
 		}
 		else
 		{
 			drop_header(fd);
 			errno_num = echo_www(fd, path, st.st_size);
+			close(fd);
 		}
 	}
 end:

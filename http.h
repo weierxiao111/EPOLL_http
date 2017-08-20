@@ -11,6 +11,7 @@
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <string.h>
+#include <sys/epoll.h>
 #include <pthread.h>
 #include <sys/sendfile.h>
 
@@ -18,8 +19,11 @@
 #define NOTICE 0
 #define WARNING 1
 #define FATAL 2
+#define MAX_FD 100
+#define EPOLL_REVS_SIZE 64
 
 void print_log(const char *msg, int level);
+int set_noblock(int fd);
 int startup(const char *ip, int port);
 void *handler_request(void *arg);
 void echo_error(int fd, int errno_num);
